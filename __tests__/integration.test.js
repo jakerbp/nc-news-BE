@@ -14,9 +14,6 @@ beforeEach(() => {
 
 describe("GET", () => {
   describe("/api/topics", () => {
-    test("responds with 200 status code", () => {
-      return request(app).get("/api/topics").expect(200);
-    });
     test("response contains array of obj with expected keys", () => {
       return request(app)
         .get("/api/topics")
@@ -31,5 +28,10 @@ describe("GET", () => {
           });
         });
     });
+    test("response is 404 if endpoint doesn't exist", () => {
+        return request(app)
+          .get("/api/notAnEndpoint")
+          .expect(404)
+      });
   });
 });
