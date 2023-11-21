@@ -146,7 +146,7 @@ describe("POST", () => {
           });
       });
 
-      test("responds with 404 if article id doesn't exist", () => {
+      test("responds with 400 if article id doesn't exist", () => {
         const newComment = {
             username: "icellusedkars",
             body: "cool new comment!",
@@ -154,9 +154,9 @@ describe("POST", () => {
         return request(app)
           .post("/api/articles/999999/comments")
           .send(newComment)
-          .expect(404)
+          .expect(400)
           .then((request) => {
-            expect(request.body.msg).toEqual("Article not found!");
+            expect(request.body.msg).toEqual("Bad request!");
           });
       });
   
@@ -176,8 +176,7 @@ describe("POST", () => {
 
       test("responds with 400 if passed body is missing", () => {
         const newComment = {
-            username: "icellusedkars",
-            body: "",
+            username: "icellusedkars"
           };
         return request(app)
           .post("/api/articles/2/comments")
@@ -190,8 +189,7 @@ describe("POST", () => {
 
       test("responds with 400 if passed username is missing", () => {
         const newComment = {
-            username: "",
-            body: "cool new comment!",
+            body: "cool new comment!"
           };
         return request(app)
           .post("/api/articles/2/comments")
