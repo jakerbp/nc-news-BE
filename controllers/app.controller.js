@@ -9,11 +9,10 @@ exports.getTopics = (req, res, next) => {
 };
 
 exports.getArticle = (req, res, next) => {
-    const {article_id} = req.params
+  const { article_id } = req.params;
   selectArticles(article_id)
     .then((article) => {
-        console.log({article})
-      res.status(200).send({ article });
+      res.status(200).send({ article: article[0] });
     })
     .catch(next);
 };
