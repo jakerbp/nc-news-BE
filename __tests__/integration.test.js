@@ -48,6 +48,7 @@ describe("GET", () => {
         .get("/api")
         .then((response) => {
           const allEndpoints = response.body.endpoints;
+          expect(Object.keys(allEndpoints).length).toEqual(Object.keys(endpoints).length)
           Object.keys(allEndpoints).forEach((endpoint) => {
             expect(allEndpoints[endpoint]).toMatchObject({
               description: expect.any(String),
