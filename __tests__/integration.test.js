@@ -14,7 +14,6 @@ beforeEach(() => {
 });
 
 describe("GET", () => {
-
   test("response is 404 if endpoint doesn't exist", () => {
     return request(app).get("/api/notAnEndpoint").expect(404);
   });
@@ -36,8 +35,8 @@ describe("GET", () => {
 
     test("response is 404 if endpoint doesn't exist", () => {
       return request(app).get("/api/notAnEndpoint").expect(404);
+    });
   });
-});
   describe("/api/ - descriptions", () => {
     test("response contains obj with key for each endpoint", () => {
       return request(app)
@@ -53,7 +52,9 @@ describe("GET", () => {
         .get("/api")
         .then((response) => {
           const allEndpoints = response.body.endpoints;
-          expect(Object.keys(allEndpoints).length).toEqual(Object.keys(endpoints).length)
+          expect(Object.keys(allEndpoints).length).toEqual(
+            Object.keys(endpoints).length
+          );
           Object.keys(allEndpoints).forEach((endpoint) => {
             expect(allEndpoints[endpoint]).toMatchObject({
               description: expect.any(String),
@@ -78,13 +79,14 @@ describe("GET", () => {
         .then((response) => {
           expect(response.body.article).toMatchObject({
             article_id: 2,
-            title: 'Sony Vaio; or, The Laptop',
-            topic: 'mitch',
-            author: 'icellusedkars',
-            body: 'Call me Mitchell. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would buy a laptop about a little and see the codey part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to coding as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the laptop. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the the Vaio with me.',
-            created_at: '2020-10-16T05:03:00.000Z',
+            title: "Sony Vaio; or, The Laptop",
+            topic: "mitch",
+            author: "icellusedkars",
+            body: "Call me Mitchell. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would buy a laptop about a little and see the codey part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to coding as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the laptop. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the the Vaio with me.",
+            created_at: "2020-10-16T05:03:00.000Z",
             votes: 0,
-            article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
           });
         });
     });
@@ -107,5 +109,111 @@ describe("GET", () => {
         });
     });
   });
+});
+
+describe("POST", () => {
+  describe("/api/articles/:article_id/comments", () => {
+    test("respond with 201 upon success", () => {
+      const newComment = {
+        username: "icellusedkars",
+        body: "cool new comment!",
+      };
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send(newComment)
+        .expect(201);
+    });
+
+    test("respond with posted comment", () => {
+        const isoDate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
+        const newComment = {
+          username: "icellusedkars",
+          body: "cool new comment!",
+        };
+        const postedComment = {
+                comment_id: 19,
+                body: 'cool new comment!',
+                article_id: 2,
+                author: 'icellusedkars',
+                votes: 0,
+                created_at: expect.stringMatching(isoDate)
+        }
+        return request(app)
+          .post("/api/articles/2/comments")
+          .send(newComment)
+          .then((response) => {
+            expect(response.body.addedComment).toEqual(postedComment)
+          });
+      });
+
+      test("responds with 404 if article id doesn't exist", () => {
+        const newComment = {
+            username: "icellusedkars",
+            body: "cool new comment!",
+          };
+        return request(app)
+          .post("/api/articles/999999/comments")
+          .send(newComment)
+          .expect(404)
+          .then((request) => {
+            expect(request.body.msg).toEqual("Article not found!");
+          });
+      });
   
+      test("responds with 400 if passed article id is invalid request", () => {
+        const newComment = {
+            username: "icellusedkars",
+            body: "cool new comment!",
+          };
+        return request(app)
+          .post("/api/articles/banana/comments")
+          .send(newComment)
+          .expect(400)
+          .then((request) => {
+            expect(request.body.msg).toEqual("Bad request!");
+          });
+      });
+
+      test("responds with 400 if passed body is missing", () => {
+        const newComment = {
+            username: "icellusedkars",
+            body: "",
+          };
+        return request(app)
+          .post("/api/articles/2/comments")
+          .send(newComment)
+          .expect(400)
+          .then((request) => {
+            expect(request.body.msg).toEqual("Bad request!");
+          });
+      });
+
+      test("responds with 400 if passed username is missing", () => {
+        const newComment = {
+            username: "",
+            body: "cool new comment!",
+          };
+        return request(app)
+          .post("/api/articles/2/comments")
+          .send(newComment)
+          .expect(400)
+          .then((request) => {
+            expect(request.body.msg).toEqual("Bad request!");
+          });
+      });
+
+      test("responds with 400 if passed username doesn't exist", () => {
+        const newComment = {
+            username: "jakerbp",
+            body: "cool new comment",
+          };
+        return request(app)
+          .post("/api/articles/2/comments")
+          .send(newComment)
+          .expect(400)
+          .then((request) => {
+            expect(request.body.msg).toEqual('Bad request!');
+          });
+      });
+  });
 });
