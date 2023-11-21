@@ -88,7 +88,7 @@ describe("GET", () => {
     });
   });
 
-  test("responds with 404 if no articles returned", () => {
+  test("responds with 404 if invalid path", () => {
     return request(app)
       .get("/api/notArticles")
       .expect(404)
