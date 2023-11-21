@@ -124,6 +124,7 @@ describe("GET", () => {
         .get("/api/articles/1/comments")
         .then((response) => {
           const commentsArray = response.body.articleComments;
+          expect(commentsArray).toHaveLength(11)
           commentsArray.forEach((comment) => {
             expect(comment).toMatchObject({
               comment_id: expect.any(Number),
