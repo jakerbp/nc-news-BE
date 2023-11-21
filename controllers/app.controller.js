@@ -1,4 +1,4 @@
-const { selectTopics, selectArticles } = require("../models/app.model");
+const { selectTopics, selectArticles, showEndpoints } = require("../models/app.model");
 
 exports.getTopics = (req, res, next) => {
   selectTopics()
@@ -15,4 +15,9 @@ exports.getArticle = (req, res, next) => {
       res.status(200).send({ article: article[0] });
     })
     .catch(next);
+};
+
+exports.getEndpoints = (req, res) => {
+  const endpoints = showEndpoints();
+  res.status(200).send({ endpoints })
 };
