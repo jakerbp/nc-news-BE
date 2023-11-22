@@ -1,5 +1,6 @@
 const db = require("../db/connection");
-const endpoints = require('../endpoints.json')
+const endpoints = require("../endpoints.json");
+const { formatPostedComment } = require("../utils");
 
 exports.selectTopics = () => {
   let queryString = `SELECT * FROM topics `;
@@ -42,6 +43,21 @@ exports.selectArticles = () => {
 };
 
 exports.showEndpoints = () => {
-    return endpoints
-}
+  return endpoints;
+};
 
+exports.insertComment = (newComment, article_id) => {
+  if (!newComment.username || !newComment.body) {
+    return Promise.reject({ status: 400, msg: "Bad request!" });
+  }
+  const formattedComment = formatPostedComment(newComment, article_id);
+
+  return db
+    .query(
+      `INSERT INTO comments (body, article_id, author, votes, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING * ;`,
+      formattedComment
+    )
+    .then(({ rows }) => {
+      return rows;
+    });
+};
