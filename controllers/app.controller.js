@@ -1,6 +1,14 @@
-const { selectTopics, selectArticles, showEndpoints, selectArticle, selectArticleComments, updateArticle } = require("../models/app.model");
-const { checkExists } = require("../utils");
+const {
+  selectTopics,
+  selectArticles,
+  showEndpoints,
+  selectArticle,
+  selectArticleComments,
+  insertComment,
+  updateArticle,
+} = require("../models/app.model");
 
+const { checkExists } = require("../utils");
 
 exports.getTopics = (req, res, next) => {
   selectTopics()
@@ -11,11 +19,12 @@ exports.getTopics = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    selectArticles().then((articles) => {
-        res.status(200).send({ articles })
+  selectArticles()
+    .then((articles) => {
+      res.status(200).send({ articles });
     })
-    .catch(next)
-}
+    .catch(next);
+};
 
 exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
@@ -27,25 +36,41 @@ exports.getArticle = (req, res, next) => {
 };
 
 exports.getArticleComments = (req, res, next) => {
-    const { article_id } = req.params;
-    const commentPromises = [selectArticleComments(article_id), checkExists('articles', 'article_id', article_id)]
-    Promise.all(commentPromises)
-      .then((resolvedPromises) => {
-        const articleComments = resolvedPromises[0]
-        res.status(200).send({ articleComments });
-      })
-      .catch(next);
-  };
+  const { article_id } = req.params;
+  const commentPromises = [
+    selectArticleComments(article_id),
+    checkExists("articles", "article_id", article_id),
+  ];
+  Promise.all(commentPromises)
+    .then((resolvedPromises) => {
+      const articleComments = resolvedPromises[0];
+      res.status(200).send({ articleComments });
+    })
+    .catch(next);
+};
 
 exports.getEndpoints = (req, res) => {
   const endpoints = showEndpoints();
-  res.status(200).send({ endpoints })
+  res.status(200).send({ endpoints });
 };
 
 exports.patchArticle = (req, res, next) => {
-    const { article_id } = req.params;
-    const { inc_votes } = req.body
-    updateArticle(article_id, inc_votes).then((updatedArticle) => {
-        res.status(200).send({updatedArticle})
-    }).catch(next)
-}
+  const { article_id } = req.params;
+  const { inc_votes } = req.body;
+  updateArticle(article_id, inc_votes)
+    .then((updatedArticle) => {
+      res.status(200).send({ updatedArticle });
+    })
+    .catch(next);
+};
+
+exports.postComment = (req, res, next) => {
+  const newComment = req.body;
+  console.log(req);
+  const { article_id } = req.params;
+  insertComment(newComment, article_id)
+    .then((addedComment) => {
+      res.status(201).send({ addedComment: addedComment[0] });
+    })
+    .catch(next);
+};

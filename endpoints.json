@@ -72,5 +72,23 @@
         }
       }
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts a new comment to a specified article_id",
+    "queries": [],
+    "requestBodyFormat": {
+      "username": "icellusedkars",
+      "body": "cool new comment!"
+    },
+    "exampleResponse": {
+        "addedComment":  {
+          "comment_id": 19,
+          "body": "cool new comment!",
+          "article_id": 2,
+          "author": "icellusedkars",
+          "votes": 0,
+          "created_at": "2023-11-21T19:06:23.855Z"
+        }
+    }
   }
 }
