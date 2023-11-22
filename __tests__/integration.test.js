@@ -40,35 +40,60 @@ describe("GET", () => {
     });
   });
 
-  describe("/api/ - descriptions", () => {
-    test("response contains obj with key for each endpoint", () => {
+  describe("/api/articles", () => {
+    test("responds with 200", () => {
+      return request(app).get("/api/articles").expect(200);
+    });
+
+    test("response contains array of expected length", () => {
       return request(app)
-        .get("/api")
-        .expect(200)
+        .get("/api/articles")
         .then((response) => {
-          expect(response.body.endpoints).toEqual(endpoints);
+          expect(response.body.articles).toHaveLength(13);
         });
     });
 
-    test("response obj endpoint keys each contain description key", () => {
+    test("response contains array of obj with expected keys", () => {
+      const isoDate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
       return request(app)
-        .get("/api")
+        .get("/api/articles")
         .then((response) => {
-          const allEndpoints = response.body.endpoints;
-          expect(Object.keys(allEndpoints).length).toEqual(
-            Object.keys(endpoints).length
-          );
-          Object.keys(allEndpoints).forEach((endpoint) => {
-            expect(allEndpoints[endpoint]).toMatchObject({
-              description: expect.any(String),
-              queries: expect.any(Array),
-              requestBodyFormat: expect.any(Object),
-              exampleResponse: expect.any(Object),
+          response.body.articles.forEach((article) => {
+            expect(article).toMatchObject({
+              article_id: expect.any(Number),
+              title: expect.any(String),
+              topic: expect.any(String),
+              author: expect.any(String),
+              created_at: expect.stringMatching(isoDate),
+              votes: expect.any(Number),
+              article_img_url: expect.any(String),
+              comment_count: expect.any(Number),
             });
           });
         });
+    })
+
+    test("response contains array of obj without body key", () => {
+      return request(app)
+        .get("/api/articles")
+        .then((response) => {
+          response.body.articles.forEach((article) => {
+            expect(article).not.toHaveProperty("body");
+          });
+        });
     });
-  });
+
+    test("response array is sorted desc by date", () => {
+      return request(app)
+        .get("/api/articles")
+        .then((response) => {
+          expect(response.body.articles).toBeSorted({
+            key: "created_at",
+            descending: true,
+          });
+        });
+    });
+    })
 
   describe("/api/articles/:article_id", () => {
     test("responds with 200 upon success", () => {
@@ -175,4 +200,41 @@ describe("GET", () => {
   });
 
 
+  test("responds with 404 if invalid path", () => {
+    return request(app)
+      .get("/api/notArticles")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not found!");
+      });
+  });
+  
+
+  describe("/api/ - descriptions", () => {
+    test("response contains obj with key for each endpoint", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then((response) => {
+          expect(response.body.endpoints).toEqual(endpoints);
+        });
+    });
+
+    test("response obj endpoint keys each contain description key", () => {
+      return request(app)
+        .get("/api")
+        .then((response) => {
+          const allEndpoints = response.body.endpoints;
+          expect(Object.keys(allEndpoints).length).toEqual(Object.keys(endpoints).length)
+          Object.keys(allEndpoints).forEach((endpoint) => {
+            expect(allEndpoints[endpoint]).toMatchObject({
+              description: expect.any(String),
+              queries: expect.any(Array),
+              requestBodyFormat: expect.any(Object),
+              exampleResponse: expect.any(Object),
+            });
+          });
+        });
+    });
+  });
 });

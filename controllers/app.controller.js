@@ -1,5 +1,6 @@
-const { selectTopics, selectArticles, showEndpoints, selectArticleComments } = require("../models/app.model");
+const { selectTopics, selectArticles, showEndpoints, selectArticle, selectArticleComments } = require("../models/app.model");
 const { checkExists } = require("../utils");
+
 
 exports.getTopics = (req, res, next) => {
   selectTopics()
@@ -9,9 +10,16 @@ exports.getTopics = (req, res, next) => {
     .catch(next);
 };
 
+exports.getArticles = (req, res, next) => {
+    selectArticles().then((articles) => {
+        res.status(200).send({ articles })
+    })
+    .catch(next)
+}
+
 exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
-  selectArticles(article_id)
+  selectArticle(article_id)
     .then((article) => {
       res.status(200).send({ article: article[0] });
     })
