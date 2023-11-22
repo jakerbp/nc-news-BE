@@ -66,7 +66,6 @@ exports.patchArticle = (req, res, next) => {
 
 exports.postComment = (req, res, next) => {
   const newComment = req.body;
-  console.log(req);
   const { article_id } = req.params;
   insertComment(newComment, article_id)
     .then((addedComment) => {
