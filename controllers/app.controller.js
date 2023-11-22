@@ -1,4 +1,4 @@
-const { selectTopics, selectArticles, showEndpoints, selectArticle, selectArticleComments } = require("../models/app.model");
+const { selectTopics, selectArticles, showEndpoints, selectArticle, selectArticleComments, updateArticle } = require("../models/app.model");
 const { checkExists } = require("../utils");
 
 
@@ -41,3 +41,11 @@ exports.getEndpoints = (req, res) => {
   const endpoints = showEndpoints();
   res.status(200).send({ endpoints })
 };
+
+exports.patchArticle = (req, res, next) => {
+    const { article_id } = req.params;
+    const { inc_votes } = req.body
+    updateArticle(article_id, inc_votes).then((updatedArticle) => {
+        res.status(200).send({updatedArticle})
+    }).catch(next)
+}
