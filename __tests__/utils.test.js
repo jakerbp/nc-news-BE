@@ -3,7 +3,7 @@ const {
   createRef,
   formatComments,
 } = require("../db/seeds/utils");
-const {formatComment} = require("../utils")
+const {formatPostedComment} = require("../utils")
 
 describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
@@ -104,9 +104,9 @@ describe("formatComments", () => {
   });
 });
 
-describe("POST/ formatComment", () => {
+describe("formatPostedComment", () => {
 test("should return array", () => {
-  expect(Array.isArray(formatComment('a', 1))).toBe(true)
+  expect(Array.isArray(formatPostedComment('a', 1))).toBe(true)
 });
 
 test("should return array with expected items", () => {
@@ -118,6 +118,6 @@ test("should return array with expected items", () => {
       0,
       new Date().toISOString()
   ]
-  expect(formatComment(newComment, 2)).toEqual(formattedComment)
+  expect(formatPostedComment(newComment, 2)).toEqual(formattedComment)
 });
 })

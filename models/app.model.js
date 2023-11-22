@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 const endpoints = require("../endpoints.json");
-const { formatComment } = require("../utils");
+const { formatPostedComment } = require("../utils");
 exports.selectTopics = () => {
   let queryString = `SELECT * FROM topics `;
   return db.query(queryString).then(({ rows }) => {
@@ -33,8 +33,7 @@ exports.insertComment = (newComment, article_id) => {
   if (!newComment.username || !newComment.body) {
     return Promise.reject({ status: 400, msg: "Bad request!" });
   }
-  const formattedComment = formatComment(newComment, article_id);
-  let queryString = `SELECT * FROM articles WHERE article_id = $1 `;
+  const formattedComment = formatPostedComment(newComment, article_id);
 
   return db
     .query(
