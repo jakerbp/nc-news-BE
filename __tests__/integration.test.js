@@ -157,7 +157,9 @@ describe("GET", () => {
     });
 
     test("responds with 200 and empty array if article exists but has no comments", () => {
-      return request(app).get("/api/articles/2/comments").expect(200);
+      return request(app).get("/api/articles/2/comments").expect(200).then(({body})=>{
+        expect(body.articleComments).toEqual([])
+      });
     });
 
     test("response array is sorted most recent created_at time&date first", () => {

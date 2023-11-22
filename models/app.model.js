@@ -26,15 +26,8 @@ exports.selectArticles = (article_id) => {
 };
 
 exports.selectArticleComments = (article_id) => {
-  let queryString = `SELECT * FROM comments `;
-  const queryValues = [];
-
-  if (article_id) {
-    queryValues.push(article_id);
-    queryString += `WHERE article_id = $1 ORDER BY created_at DESC`;
-  }
-
-
+  let queryString = `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`;
+  const queryValues = [article_id];
 
   return db.query(queryString, queryValues).then(({ rows }) => {
     return rows;
