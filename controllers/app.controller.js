@@ -1,4 +1,4 @@
-const { selectTopics, selectArticles, showEndpoints, selectArticle, selectArticleComments, insertComment } = require("../models/app.model");
+const { selectTopics, selectArticles, showEndpoints, selectArticle, selectArticleComments, insertComment, deleteCommentById } = require("../models/app.model");
 const { checkExists } = require("../utils");
 
 exports.getTopics = (req, res, next) => {
@@ -43,10 +43,17 @@ exports.getEndpoints = (req, res) => {
 
 exports.postComment = (req, res, next) => {
 const newComment = req.body;
-console.log(req)
 const { article_id } = req.params
  insertComment(newComment, article_id).then((addedComment)=>{
      res.status(201).send({addedComment: addedComment[0]})
  })
  .catch(next)
+}
+
+exports.deleteComment = (req, res, next) => {
+    const { comment_id } = req.params
+    deleteCommentById(comment_id).then(()=>{
+        res.sendStatus(204)
+    })
+    .catch(next)
 }
