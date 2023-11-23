@@ -472,13 +472,13 @@ describe("PATCH", () => {
           });
     })
 
-    test("responds with 404 if inc_votes missing", () => {
+    test("responds with 400 if inc_votes missing", () => {
         return request(app)
           .patch("/api/articles/2")
           .send()
-          .expect(404)
+          .expect(400)
           .then(({ body }) => {
-            expect(body.msg).toEqual("Not found!");
+            expect(body.msg).toEqual("Bad request!");
           });
     })
 
