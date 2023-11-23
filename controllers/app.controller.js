@@ -1,4 +1,4 @@
-const { selectTopics, selectArticles, showEndpoints, selectArticle, selectArticleComments, insertComment } = require("../models/app.model");
+const { selectTopics, selectArticles, showEndpoints, selectArticle, selectArticleComments, insertComment, selectUsers } = require("../models/app.model");
 const { checkExists } = require("../utils");
 
 exports.getTopics = (req, res, next) => {
@@ -49,4 +49,11 @@ const { article_id } = req.params
      res.status(201).send({addedComment: addedComment[0]})
  })
  .catch(next)
+}
+
+exports.getUsers = (req, res, next) => {
+    selectUsers().then((users)=>{
+        res.status(200).send({users})
+    })
+    .catch(next)
 }

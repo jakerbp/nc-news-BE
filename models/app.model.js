@@ -61,3 +61,10 @@ exports.insertComment = (newComment, article_id) => {
       return rows;
     });
 };
+
+exports.selectUsers = () => {
+  let queryString = `SELECT * FROM users `;
+  return db.query(queryString).then(({ rows }) => {
+    return rows;
+  });
+};
