@@ -76,6 +76,13 @@ exports.insertComment = (newComment, article_id) => {
     });
 };
 
+exports.selectUsers = () => {
+  let queryString = `SELECT * FROM users `;
+  return db.query(queryString).then(({ rows }) => {
+    return rows;
+  });
+};
+
 exports.deleteCommentById = (comment_id) => {
   return db.query(`DELETE from comments WHERE comment_id = $1 RETURNING *;`, [comment_id]).then(({rows})=>{
     if(rows.length === 0){

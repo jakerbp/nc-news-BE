@@ -283,6 +283,39 @@ describe("GET", () => {
         });
     });
   });
+
+  describe("/api/users", () => {
+    test("responds with 200 on success", () => {
+      return request(app).get("/api/users").expect(200);
+    });
+
+    test("responds with array of objects", () => {
+      return request(app)
+        .get("/api/users")
+        .then(({ body }) => {
+          expect(Array.isArray(body.users)).toEqual(true);
+          expect(body.users).toHaveLength(4)
+          body.users.forEach((user) => {
+            expect(typeof user).toBe("object");
+          });
+        });
+    });
+
+    test("response objects have expected keys", () => {
+      return request(app)
+        .get("/api/users")
+        .then(({ body }) => {
+            body.users.forEach((user) => {
+                expect(user).toMatchObject({
+                    username: expect.any(String),
+                    name: expect.any(String),
+                    avatar_url: expect.any(String)
+                });
+              });
+        });
+    });
+
+  });
 });
 
 describe("POST", () => {
