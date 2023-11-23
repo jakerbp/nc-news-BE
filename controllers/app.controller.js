@@ -1,12 +1,4 @@
-const {
-  selectTopics,
-  selectArticles,
-  showEndpoints,
-  selectArticle,
-  selectArticleComments,
-  insertComment,
-  updateArticle,
-} = require("../models/app.model");
+const { selectTopics, selectArticles, showEndpoints, selectArticle, selectArticleComments, insertComment, deleteCommentById, updateArticle } = require("../models/app.model");
 
 const { checkExists } = require("../utils");
 
@@ -65,11 +57,19 @@ exports.patchArticle = (req, res, next) => {
 };
 
 exports.postComment = (req, res, next) => {
-  const newComment = req.body;
-  const { article_id } = req.params;
-  insertComment(newComment, article_id)
-    .then((addedComment) => {
-      res.status(201).send({ addedComment: addedComment[0] });
+const newComment = req.body;
+const { article_id } = req.params
+ insertComment(newComment, article_id).then((addedComment)=>{
+     res.status(201).send({addedComment: addedComment[0]})
+ })
+ .catch(next)
+}
+
+exports.deleteComment = (req, res, next) => {
+    const { comment_id } = req.params
+    deleteCommentById(comment_id).then(()=>{
+        res.sendStatus(204)
     })
-    .catch(next);
-};
+    .catch(next)
+}
+

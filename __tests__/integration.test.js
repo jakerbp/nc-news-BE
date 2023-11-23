@@ -287,7 +287,7 @@ describe("GET", () => {
 
 describe("POST", () => {
   describe("/api/articles/:article_id/comments", () => {
-      test("respond with 201 upon success", () => {
+    test("respond with 201 upon success", () => {
       const newComment = {
         username: "icellusedkars",
         body: "cool new comment!",
@@ -296,97 +296,133 @@ describe("POST", () => {
         .post("/api/articles/2/comments")
         .send(newComment)
         .expect(201);
+    });
+
+    test("respond with posted comment", () => {
+      const isoDate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
+      const newComment = {
+        username: "icellusedkars",
+        body: "cool new comment!",
+      };
+      const postedComment = {
+        comment_id: 19,
+        body: "cool new comment!",
+        article_id: 2,
+        author: "icellusedkars",
+        votes: 0,
+        created_at: expect.stringMatching(isoDate),
+      };
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send(newComment)
+        .then((response) => {
+          expect(response.body.addedComment).toEqual(postedComment);
+        });
+    });
+
+    test("responds with 400 if article id doesn't exist", () => {
+      const newComment = {
+        username: "icellusedkars",
+        body: "cool new comment!",
+      };
+      return request(app)
+        .post("/api/articles/999999/comments")
+        .send(newComment)
+        .expect(400)
+        .then((request) => {
+          expect(request.body.msg).toEqual("Bad request!");
+        });
+    });
+
+    test("responds with 400 if passed article id is invalid request", () => {
+      const newComment = {
+        username: "icellusedkars",
+        body: "cool new comment!",
+      };
+      return request(app)
+        .post("/api/articles/banana/comments")
+        .send(newComment)
+        .expect(400)
+        .then((request) => {
+          expect(request.body.msg).toEqual("Bad request!");
+        });
+    });
+
+    test("responds with 400 if passed body is missing", () => {
+      const newComment = {
+        username: "icellusedkars",
+      };
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send(newComment)
+        .expect(400)
+        .then((request) => {
+          expect(request.body.msg).toEqual("Bad request!");
+        });
+    });
+
+    test("responds with 400 if passed username is missing", () => {
+      const newComment = {
+        body: "cool new comment!",
+      };
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send(newComment)
+        .expect(400)
+        .then((request) => {
+          expect(request.body.msg).toEqual("Bad request!");
+        });
+    });
+
+    test("responds with 400 if passed username doesn't exist", () => {
+      const newComment = {
+        username: "jakerbp",
+        body: "cool new comment",
+      };
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send(newComment)
+        .expect(400)
+        .then((request) => {
+          expect(request.body.msg).toEqual("Bad request!");
+        });
+    });
+  });
+});
+
+describe("DELETE", () => {
+  describe("/api/comments/:comment_id", () => {
+    test("responds with 204 upon success", () => {
+      return request(app).delete("/api/comments/1").expect(204);
+    });
+
+    test("responds with 404 if comment_id doesn't exist", () => {
+      return request(app)
+        .delete("/api/comments/9999")
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Comment with id 9999 does not exist!')
+        });
+    });
+
+    test("responds with 400 if comment_id is invalid", () => {
+      return request(app)
+        .delete("/api/comments/banana")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe('Bad request!')
+        });
+    });
+
+    test("responds with 404 if comment_id is missing", () => {
+        return request(app)
+          .delete("/api/comments/")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe('Not found!')
+          });
       });
 
-      test("respond with posted comment", () => {
-        const isoDate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
-        const newComment = {
-          username: "icellusedkars",
-          body: "cool new comment!",
-        };
-        const postedComment = {
-                comment_id: 19,
-                body: 'cool new comment!',
-                article_id: 2,
-                author: 'icellusedkars',
-                votes: 0,
-                created_at: expect.stringMatching(isoDate)
-        }
-        return request(app)
-          .post("/api/articles/2/comments")
-          .send(newComment)
-          .then((response) => {
-            expect(response.body.addedComment).toEqual(postedComment)
-          });
-      });
-
-      test("responds with 400 if article id doesn't exist", () => {
-        const newComment = {
-            username: "icellusedkars",
-            body: "cool new comment!",
-          };
-        return request(app)
-          .post("/api/articles/999999/comments")
-          .send(newComment)
-          .expect(400)
-          .then((request) => {
-            expect(request.body.msg).toEqual("Bad request!");
-          });
-      });
-  
-      test("responds with 400 if passed article id is invalid request", () => {
-        const newComment = {
-            username: "icellusedkars",
-            body: "cool new comment!",
-          };
-        return request(app)
-          .post("/api/articles/banana/comments")
-          .send(newComment)
-          .expect(400)
-          .then((request) => {
-            expect(request.body.msg).toEqual("Bad request!");
-          });
-      });
-
-      test("responds with 400 if passed body is missing", () => {
-        const newComment = {
-            username: "icellusedkars"
-          };
-        return request(app)
-          .post("/api/articles/2/comments")
-          .send(newComment)
-          .expect(400)
-          .then((request) => {
-            expect(request.body.msg).toEqual("Bad request!");
-          });
-      });
-
-      test("responds with 400 if passed username is missing", () => {
-        const newComment = {
-            body: "cool new comment!"
-          };
-        return request(app)
-          .post("/api/articles/2/comments")
-          .send(newComment)
-          .expect(400)
-          .then((request) => {
-            expect(request.body.msg).toEqual("Bad request!");
-          });
-      });
-
-      test("responds with 400 if passed username doesn't exist", () => {
-        const newComment = {
-            username: "jakerbp",
-            body: "cool new comment",
-          };
-        return request(app)
-          .post("/api/articles/2/comments")
-          .send(newComment)
-          .expect(400)
-          .then((request) => {
-            expect(request.body.msg).toEqual('Bad request!');
-          });
-      });
   });
 });
 
