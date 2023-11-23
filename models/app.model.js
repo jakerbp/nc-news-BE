@@ -46,6 +46,20 @@ exports.showEndpoints = () => {
   return endpoints;
 };
 
+exports.updateArticle = (article_id, updateVotes) => {
+  if (!updateVotes) {
+    return Promise.reject({ status: 400, msg: "Bad request!" });
+  }
+  let queryString = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`
+  const queryValues = [updateVotes, article_id]
+  return db.query(queryString, queryValues).then(({rows}) => {
+    if (rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "Article not found!" });
+    }
+    return rows[0]
+  })
+}
+
 exports.insertComment = (newComment, article_id) => {
   if (!newComment.username || !newComment.body) {
     return Promise.reject({ status: 400, msg: "Bad request!" });
