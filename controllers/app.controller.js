@@ -10,7 +10,15 @@ exports.getTopics = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    selectArticles().then((articles) => {
+    const {topic} = req.query
+    const articlePromises = [selectArticles(topic)]
+    if(topic){
+        let lowerTopic = topic.toLowerCase()
+        articlePromises.push(checkExists('topics','slug',lowerTopic))
+    }
+    Promise.all(articlePromises)
+    .then((resolvedPromises) => {
+        const articles = resolvedPromises[0]
         res.status(200).send({ articles })
     })
     .catch(next)
@@ -43,7 +51,6 @@ exports.getEndpoints = (req, res) => {
 
 exports.postComment = (req, res, next) => {
 const newComment = req.body;
-console.log(req)
 const { article_id } = req.params
  insertComment(newComment, article_id).then((addedComment)=>{
      res.status(201).send({addedComment: addedComment[0]})
