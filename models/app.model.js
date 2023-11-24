@@ -10,13 +10,8 @@ exports.selectTopics = () => {
 };
 
 exports.selectArticle = (article_id) => {
-  let queryString = `SELECT * FROM articles `;
-  const queryValues = [];
-
-  if (article_id) {
-    queryValues.push(article_id);
-    queryString += `WHERE article_id = $1 `;
-  }
+  let queryString = `SELECT articles.*, COUNT(comments.article_id)::int AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id;`;
+  const queryValues = [article_id];
 
   return db.query(queryString, queryValues).then(({ rows }) => {
     if (rows.length === 0) {
