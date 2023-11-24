@@ -33,15 +33,15 @@ exports.selectArticleComments = (article_id) => {
 exports.selectArticles = (topic) => {
   let queryString = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id)::int AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id `;
   const queryValues = [];
- 
+
   if (topic) {
-    let lowerTopic = topic.toLowerCase()
+    let lowerTopic = topic.toLowerCase();
     queryValues.push(lowerTopic);
     queryString += `WHERE topic = $1`;
   }
-  
+
   let queryStringEnd = `GROUP BY articles.article_id ORDER BY articles.created_at DESC `;
-  
+
   return db
     .query(queryString + queryStringEnd, queryValues)
     .then(({ rows }) => {
@@ -57,15 +57,15 @@ exports.updateArticle = (article_id, updateVotes) => {
   if (!updateVotes) {
     return Promise.reject({ status: 400, msg: "Bad request!" });
   }
-  let queryString = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`
-  const queryValues = [updateVotes, article_id]
-  return db.query(queryString, queryValues).then(({rows}) => {
+  let queryString = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`;
+  const queryValues = [updateVotes, article_id];
+  return db.query(queryString, queryValues).then(({ rows }) => {
     if (rows.length === 0) {
       return Promise.reject({ status: 404, msg: "Article not found!" });
     }
-    return rows[0]
-  })
-}
+    return rows[0];
+  });
+};
 
 exports.insertComment = (newComment, article_id) => {
   if (!newComment.username || !newComment.body) {
@@ -91,9 +91,16 @@ exports.selectUsers = () => {
 };
 
 exports.deleteCommentById = (comment_id) => {
-  return db.query(`DELETE from comments WHERE comment_id = $1 RETURNING *;`, [comment_id]).then(({rows})=>{
-    if(rows.length === 0){
-      return Promise.reject({ status: 404, msg: `Comment with id ${comment_id} does not exist!` });
-    }
-  })
-}
+  return db
+    .query(`DELETE from comments WHERE comment_id = $1 RETURNING *;`, [
+      comment_id,
+    ])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: `Comment with id ${comment_id} does not exist!`,
+        });
+      }
+    });
+};

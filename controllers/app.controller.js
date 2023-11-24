@@ -1,4 +1,14 @@
-const { selectTopics, selectArticles, showEndpoints, selectArticle, selectArticleComments, insertComment, selectUsers, deleteCommentById, updateArticle } = require("../models/app.model");
+const {
+  selectTopics,
+  selectArticles,
+  showEndpoints,
+  selectArticle,
+  selectArticleComments,
+  insertComment,
+  selectUsers,
+  deleteCommentById,
+  updateArticle,
+} = require("../models/app.model");
 
 const { checkExists } = require("../utils");
 
@@ -11,16 +21,16 @@ exports.getTopics = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    const {topic} = req.query
-    const articlePromises = [selectArticles(topic)]
-    if(topic){
-        let lowerTopic = topic.toLowerCase()
-        articlePromises.push(checkExists('topics','slug',lowerTopic))
-    }
-    Promise.all(articlePromises)
+  const { topic } = req.query;
+  const articlePromises = [selectArticles(topic)];
+  if (topic) {
+    let lowerTopic = topic.toLowerCase();
+    articlePromises.push(checkExists("topics", "slug", lowerTopic));
+  }
+  Promise.all(articlePromises)
     .then((resolvedPromises) => {
-        const articles = resolvedPromises[0]
-        res.status(200).send({ articles })
+      const articles = resolvedPromises[0];
+      res.status(200).send({ articles });
     })
     .catch(next);
 };
@@ -64,26 +74,28 @@ exports.patchArticle = (req, res, next) => {
 };
 
 exports.postComment = (req, res, next) => {
-const newComment = req.body;
-const { article_id } = req.params
- insertComment(newComment, article_id).then((addedComment)=>{
-     res.status(201).send({addedComment: addedComment[0]})
- })
- .catch(next)
-}
+  const newComment = req.body;
+  const { article_id } = req.params;
+  insertComment(newComment, article_id)
+    .then((addedComment) => {
+      res.status(201).send({ addedComment: addedComment[0] });
+    })
+    .catch(next);
+};
 
 exports.getUsers = (req, res, next) => {
-    selectUsers().then((users)=>{
-        res.status(200).send({users})
+  selectUsers()
+    .then((users) => {
+      res.status(200).send({ users });
     })
-    .catch(next)
-}
+    .catch(next);
+};
 
 exports.deleteComment = (req, res, next) => {
-    const { comment_id } = req.params
-    deleteCommentById(comment_id).then(()=>{
-        res.sendStatus(204)
+  const { comment_id } = req.params;
+  deleteCommentById(comment_id)
+    .then(() => {
+      res.sendStatus(204);
     })
-    .catch(next)
-}
-
+    .catch(next);
+};
