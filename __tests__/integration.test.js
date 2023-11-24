@@ -126,44 +126,132 @@ describe("GET", () => {
     });
 
     describe("/api/articles > queries", () => {
-      test("responds only with articles with the queried topic", () => {
-        return request(app)
-          .get("/api/articles?topic=cats")
-          .then(({ body }) => {
-            expect(body.articles).toHaveLength(1);
-            body.articles.forEach((article) => {
-              expect(article.topic).toBe("cats");
+      describe("?topic", () => {
+        test("responds only with articles with the queried topic", () => {
+          return request(app)
+            .get("/api/articles?topic=cats")
+            .then(({ body }) => {
+              expect(body.articles).toHaveLength(1);
+              body.articles.forEach((article) => {
+                expect(article.topic).toBe("cats");
+              });
             });
-          });
-      });
+        });
 
-      test("responds only with articles with the queried topic, case insensitive query", () => {
-        return request(app)
-          .get("/api/articles?topic=cAtS")
-          .then(({ body }) => {
-            expect(body.articles).toHaveLength(1);
-            body.articles.forEach((article) => {
-              expect(article.topic).toBe("cats");
+        test("responds only with articles with the queried topic, case insensitive query", () => {
+          return request(app)
+            .get("/api/articles?topic=cAtS")
+            .then(({ body }) => {
+              expect(body.articles).toHaveLength(1);
+              body.articles.forEach((article) => {
+                expect(article.topic).toBe("cats");
+              });
             });
-          });
-      });
+        });
 
-      test("responds with 404 if topic doesn't exist", () => {
-        return request(app)
-          .get("/api/articles?topic=dogs")
-          .expect(404)
-          .then(({ body }) => {
-            expect(body.msg).toBe("Not found!");
-          });
-      });
+        test("responds with 404 if topic doesn't exist", () => {
+          return request(app)
+            .get("/api/articles?topic=dogs")
+            .expect(404)
+            .then(({ body }) => {
+              expect(body.msg).toBe("Not found!");
+            });
+        });
 
-      test("responds with 200 if topic exists but no articles", () => {
-        return request(app)
-          .get("/api/articles?topic=paper")
-          .expect(200)
-          .then(({ body }) => {
-            expect(body.articles).toEqual([]);
-          });
+        test("responds with 200 if topic exists but no articles", () => {
+          return request(app)
+            .get("/api/articles?topic=paper")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toEqual([]);
+            });
+        });
+      });
+      describe("?sort &/or ?order", () => {
+        test("responds with array of articles, sorted by created_at and desc as default", () => {
+          return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toHaveLength(13);
+              expect(body.articles).toBeSorted({
+                key: "created_at",
+                descending: true,
+              });
+            });
+        });
+
+        test("responds with array of articles, sorted by created_at and asc if passed", () => {
+          return request(app)
+            .get("/api/articles?order=asc")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toHaveLength(13);
+              expect(body.articles).toBeSorted({
+                key: "created_at",
+                descending: false,
+              });
+            });
+        });
+
+        test("responds with array of articles, sorted by comment_count and desc when passed", () => {
+          return request(app)
+            .get("/api/articles?sort_by=comment_count&order=desc")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toHaveLength(13);
+              expect(body.articles).toBeSorted({
+                key: "comment_count",
+                descending: true,
+              });
+            });
+        });
+
+        test("responds with array of articles, filtered by topic & sorted by votes and desc when passed", () => {
+          return request(app)
+            .get("/api/articles?sort_by=comment_count&order=desc&topic=cats")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toHaveLength(1);
+              expect(body.articles).toBeSorted({
+                key: "votes",
+                descending: true,
+              });
+            });
+        });
+
+        test("400 if passed invalid order", () => {
+          return request(app)
+            .get("/api/articles?order=banana")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe(
+                "Bad request! banana is not a valid order type."
+              );
+            });
+        });
+
+        test("400 if passed invalid sort_by", () => {
+          return request(app)
+            .get("/api/articles?sort_by=banana")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe(
+                "Bad request! banana is not a valid sort field."
+              );
+            });
+        });
+
+        test("400 if passed invalid sort_by & order type", () => {
+          return request(app)
+            .get("/api/articles?sort_by=banana&order=orange")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe(
+                "Bad request! banana is not a valid sort field. Bad request! orange is not a valid order type."
+              );
+            });
+        });
       });
     });
   });

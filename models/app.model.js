@@ -30,9 +30,24 @@ exports.selectArticleComments = (article_id) => {
   });
 };
 
-exports.selectArticles = (topic) => {
+exports.selectArticles = (topic, sort_by = 'created_at', order = 'desc') => {
+  const upperOrder = order.toUpperCase();
+  const lowerSortBy = sort_by.toLowerCase();
+  const validOrder = ["ASC", "DESC"]
+  const validSortBy = ["article_id", "title", "topic", "author", "created_at", "votes", "comment_count"]
   let queryString = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id)::int AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id `;
   const queryValues = [];
+  let errMsg = []
+  if (lowerSortBy && !validSortBy.includes(lowerSortBy)) {
+    errMsg.push(`Bad request! ${sort_by} is not a valid sort field.`)
+  }
+  if (upperOrder && !validOrder.includes(upperOrder)) {
+    errMsg.push(`Bad request! ${order} is not a valid order type.`)
+  }
+  if(errMsg.length !== 0){
+   errString = errMsg.join(' ')
+  return Promise.reject({ status: 400, msg: errString });
+  }
 
   if (topic) {
     let lowerTopic = topic.toLowerCase();
@@ -40,7 +55,7 @@ exports.selectArticles = (topic) => {
     queryString += `WHERE topic = $1`;
   }
 
-  let queryStringEnd = `GROUP BY articles.article_id ORDER BY articles.created_at DESC `;
+  let queryStringEnd = `GROUP BY articles.article_id ORDER BY ${lowerSortBy} ${upperOrder} `;
 
   return db
     .query(queryString + queryStringEnd, queryValues)
