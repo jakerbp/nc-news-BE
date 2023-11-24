@@ -11,9 +11,16 @@ exports.getTopics = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  selectArticles()
-    .then((articles) => {
-      res.status(200).send({ articles });
+    const {topic} = req.query
+    const articlePromises = [selectArticles(topic)]
+    if(topic){
+        let lowerTopic = topic.toLowerCase()
+        articlePromises.push(checkExists('topics','slug',lowerTopic))
+    }
+    Promise.all(articlePromises)
+    .then((resolvedPromises) => {
+        const articles = resolvedPromises[0]
+        res.status(200).send({ articles })
     })
     .catch(next);
 };

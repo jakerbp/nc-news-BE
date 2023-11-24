@@ -93,6 +93,46 @@ describe("GET", () => {
           });
         });
     });
+    describe("/api/articles > queries", () => {
+      test("responds only with articles with the queried topic", () => {
+        return request(app)
+          .get("/api/articles?topic=cats")
+          .then(({ body }) => {
+            expect(body.articles).toHaveLength(1);
+            body.articles.forEach((article)=>{
+                expect(article.topic).toBe('cats')
+            })
+          });
+      });
+
+      test("responds only with articles with the queried topic, case insensitive query", () => {
+        return request(app)
+          .get("/api/articles?topic=cAtS")
+          .then(({ body }) => {
+            expect(body.articles).toHaveLength(1);
+            body.articles.forEach((article)=>{
+                expect(article.topic).toBe('cats')
+            })
+          });
+      });
+
+      test("responds with 404 if topic doesn't exist", () => {
+        return request(app)
+          .get("/api/articles?topic=dogs").expect(404).then(({body}) => {
+    
+            expect(body.msg).toBe("Not found!");
+          })
+      });
+
+      test("responds with 200 if topic exists but no articles", () => {
+        return request(app)
+          .get("/api/articles?topic=paper").expect(200).then(({body}) => {
+            expect(body.articles).toEqual([]);
+          })
+      });
+      
+    });
+    
   });
 
   describe("/api/articles/:article_id", () => {
@@ -334,9 +374,12 @@ describe("GET", () => {
         });
     });
   });
+
 });
 
-describe("POST", () => {
+
+
+  describe("POST", () => {
   describe("/api/articles/:article_id/comments", () => {
     test("respond with 201 upon success", () => {
       const newComment = {
@@ -569,3 +612,4 @@ describe("PATCH", () => {
     });
   });
 });
+

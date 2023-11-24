@@ -30,11 +30,23 @@ exports.selectArticleComments = (article_id) => {
   });
 };
 
-exports.selectArticles = () => {
-  let queryString = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id)::int AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY articles.created_at DESC `
-  return db.query(queryString).then(({ rows }) => {
-      return rows
-  })
+exports.selectArticles = (topic) => {
+  let queryString = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id)::int AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id `;
+  const queryValues = [];
+ 
+  if (topic) {
+    let lowerTopic = topic.toLowerCase()
+    queryValues.push(lowerTopic);
+    queryString += `WHERE topic = $1`;
+  }
+  
+  let queryStringEnd = `GROUP BY articles.article_id ORDER BY articles.created_at DESC `;
+  
+  return db
+    .query(queryString + queryStringEnd, queryValues)
+    .then(({ rows }) => {
+      return rows;
+    });
 };
 
 exports.showEndpoints = () => {
