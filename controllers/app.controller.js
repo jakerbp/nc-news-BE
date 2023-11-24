@@ -6,6 +6,7 @@ const {
   selectArticleComments,
   insertComment,
   selectUsers,
+  selectUser,
   deleteCommentById,
   updateArticle,
 } = require("../models/app.model");
@@ -39,7 +40,7 @@ exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
   selectArticle(article_id)
     .then((article) => {
-      res.status(200).send({ article: article[0] });
+      res.status(200).send({ article });
     })
     .catch(next);
 };
@@ -78,7 +79,7 @@ exports.postComment = (req, res, next) => {
   const { article_id } = req.params;
   insertComment(newComment, article_id)
     .then((addedComment) => {
-      res.status(201).send({ addedComment: addedComment[0] });
+      res.status(201).send({ addedComment });
     })
     .catch(next);
 };
@@ -90,6 +91,15 @@ exports.getUsers = (req, res, next) => {
     })
     .catch(next);
 };
+
+exports.getUser = (req, res, next) => {
+    const { username } = req.params
+    selectUser(username)
+      .then((user) => {
+        res.status(200).send({ user });
+      })
+      .catch(next);
+  };
 
 exports.deleteComment = (req, res, next) => {
   const { comment_id } = req.params;

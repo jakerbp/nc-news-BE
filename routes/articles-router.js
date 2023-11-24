@@ -7,7 +7,7 @@ const {
   postComment,
 } = require("../controllers/app.controller");
 
-articlesRouter.get("", getArticles);
+articlesRouter.get("/", getArticles);
 articlesRouter.route("/:article_id").get(getArticle).patch(patchArticle);
 articlesRouter
   .route("/:article_id/comments")

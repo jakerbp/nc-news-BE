@@ -17,7 +17,7 @@ exports.selectArticle = (article_id) => {
     if (rows.length === 0) {
       return Promise.reject({ status: 404, msg: "Article not found!" });
     }
-    return rows;
+    return rows[0];
   });
 };
 
@@ -94,7 +94,7 @@ exports.insertComment = (newComment, article_id) => {
       formattedComment
     )
     .then(({ rows }) => {
-      return rows;
+      return rows[0];
     });
 };
 
@@ -102,6 +102,16 @@ exports.selectUsers = () => {
   let queryString = `SELECT * FROM users `;
   return db.query(queryString).then(({ rows }) => {
     return rows;
+  });
+};
+
+exports.selectUser = (username) => {
+  let queryString = `SELECT username, avatar_url, name FROM users WHERE username = $1`;
+  return db.query(queryString, [username]).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({ status: 404, msg: `User '${username}' does not exist!`});
+    }
+    return rows[0];
   });
 };
 

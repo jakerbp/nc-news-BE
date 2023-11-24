@@ -413,6 +413,33 @@ describe("GET", () => {
         });
     });
   });
+  describe("/api/users/username", () => {
+    test("responds with 200 on success", () => {
+      return request(app).get("/api/users/butter_bridge").expect(200);
+    });
+
+    test("responds with 404 if no such user", () => {
+        return request(app).get("/api/users/dogGuy").expect(404).then(({body})=>{
+            expect(body.msg).toBe("User 'dogGuy' does not exist!")
+        });
+      });
+
+    test("responds with user object", () => {
+      return request(app)
+        .get("/api/users/butter_bridge")
+        .expect(200)
+        .then(({ body }) => {
+          expect(typeof body.user).toBe("object");
+          expect(body.user).toMatchObject({
+            username: 'butter_bridge',
+            avatar_url: 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg',
+            name: 'jonny'
+          });
+        });
+    });
+
+   
+  });
 });
 
 describe("POST", () => {
