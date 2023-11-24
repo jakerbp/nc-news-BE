@@ -50,9 +50,6 @@ exports.selectArticles = (topic) => {
   return db
     .query(queryString + queryStringEnd, queryValues)
     .then(({ rows }) => {
-      if(rows.length === 0){
-       return Promise.reject({status: 200, msg: `Sorry, there are no articles about ${topic}!`})
-      }
       return rows;
     });
 };

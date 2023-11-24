@@ -116,12 +116,18 @@ describe("GET", () => {
           });
       });
 
-
+      test("responds with 404 if topic doesn't exist", () => {
+        return request(app)
+          .get("/api/articles?topic=dogs").expect(404).then(({body}) => {
+    
+            expect(body.msg).toBe("Not found!");
+          })
+      });
 
       test("responds with 200 if topic exists but no articles", () => {
         return request(app)
           .get("/api/articles?topic=paper").expect(200).then(({body}) => {
-            expect(body.msg).toBe("Sorry, there are no articles about paper!");
+            expect(body.articles).toEqual([]);
           })
       });
       
@@ -317,13 +323,7 @@ describe("GET", () => {
         });
     });
   });
-  test("responds with 404 if topic doesn't exist", () => {
-    return request(app)
-      .get("/api/articles?topic=dogs").expect(404).then(({body}) => {
 
-        expect(body.msg).toBe("Not found!");
-      })
-  });
 });
 
 
