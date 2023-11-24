@@ -168,17 +168,90 @@ describe("GET", () => {
         });
       });
       describe("?sort &/or ?order", () => {
-        test("responds with array of articles, sorted by passed column", () => {
-
-        });
-        test.only("400 if passed invalid sort_by or order", () => {
-            return request(app)
-              .get("/api/articles?sort_by=cost_at_auction&order=banana")
-              .expect(400)
-              .then((response) => {
-                expect(response.body.msg).toBe("Bad request!");
+        test("responds with array of articles, sorted by created_at and desc as default", () => {
+          return request(app)
+            .get("/api/articles")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toHaveLength(13);
+              expect(body.articles).toBeSorted({
+                key: "created_at",
+                descending: true,
               });
-          });
+            });
+        });
+
+        test("responds with array of articles, sorted by created_at and asc if passed", () => {
+          return request(app)
+            .get("/api/articles?order=asc")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toHaveLength(13);
+              expect(body.articles).toBeSorted({
+                key: "created_at",
+                descending: false,
+              });
+            });
+        });
+
+        test("responds with array of articles, sorted by comment_count and desc when passed", () => {
+          return request(app)
+            .get("/api/articles?sort_by=comment_count&order=desc")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toHaveLength(13);
+              expect(body.articles).toBeSorted({
+                key: "comment_count",
+                descending: true,
+              });
+            });
+        });
+
+        test("responds with array of articles, filtered by topic & sorted by votes and desc when passed", () => {
+          return request(app)
+            .get("/api/articles?sort_by=comment_count&order=desc&topic=cats")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles).toHaveLength(1);
+              expect(body.articles).toBeSorted({
+                key: "votes",
+                descending: true,
+              });
+            });
+        });
+
+        test("400 if passed invalid order", () => {
+          return request(app)
+            .get("/api/articles?order=banana")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe(
+                "Bad request! banana is not a valid order type."
+              );
+            });
+        });
+
+        test("400 if passed invalid sort_by", () => {
+          return request(app)
+            .get("/api/articles?sort_by=banana")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe(
+                "Bad request! banana is not a valid sort field."
+              );
+            });
+        });
+
+        test("400 if passed invalid sort_by & order type", () => {
+          return request(app)
+            .get("/api/articles?sort_by=banana&order=orange")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe(
+                "Bad request! banana is not a valid sort field. Bad request! orange is not a valid order type."
+              );
+            });
+        });
       });
     });
   });
