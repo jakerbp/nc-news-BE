@@ -676,7 +676,7 @@ describe("PATCH", () => {
         });
     });
   });
-  describe.only("/api/comments/:comment_id", () => {
+  describe("/api/comments/:comment_id", () => {
     test("responds with 200 and increments vote count as expected", () => {
       const inc_votes = { inc_votes: 123 };
       const commentIncrementedVotes = {
