@@ -419,10 +419,13 @@ describe("GET", () => {
     });
 
     test("responds with 404 if no such user", () => {
-        return request(app).get("/api/users/dogGuy").expect(404).then(({body})=>{
-            expect(body.msg).toBe("User 'dogGuy' does not exist!")
+      return request(app)
+        .get("/api/users/dogGuy")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("User 'dogGuy' does not exist!");
         });
-      });
+    });
 
     test("responds with user object", () => {
       return request(app)
@@ -431,14 +434,13 @@ describe("GET", () => {
         .then(({ body }) => {
           expect(typeof body.user).toBe("object");
           expect(body.user).toMatchObject({
-            username: 'butter_bridge',
-            avatar_url: 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg',
-            name: 'jonny'
+            username: "butter_bridge",
+            avatar_url:
+              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+            name: "jonny",
           });
         });
     });
-
-   
   });
 });
 
@@ -667,6 +669,91 @@ describe("PATCH", () => {
     test("responds with 400 if inc_votes missing", () => {
       return request(app)
         .patch("/api/articles/2")
+        .send()
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("Bad request!");
+        });
+    });
+  });
+  describe("/api/comments/:comment_id", () => {
+    test("responds with 200 and increments vote count as expected", () => {
+      const inc_votes = { inc_votes: 123 };
+      const commentIncrementedVotes = {
+        updatedComment: {
+          comment_id: 2,
+          body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+          article_id: 1,
+          author: "butter_bridge",
+          votes: 137,
+          created_at: "2020-10-31T03:03:00.000Z",
+        },
+      };
+      return request(app)
+        .patch("/api/comments/2")
+        .send(inc_votes)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual(commentIncrementedVotes);
+        });
+    });
+    test("responds with 200 and decrements vote count as expected", () => {
+      const inc_votes = { inc_votes: -4 };
+      const commentIncrementedVotes = {
+        updatedComment: {
+          comment_id: 2,
+          body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+          article_id: 1,
+          author: "butter_bridge",
+          votes: 10,
+          created_at: "2020-10-31T03:03:00.000Z",
+        },
+      };
+      return request(app)
+        .patch("/api/comments/2")
+        .send(inc_votes)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual(commentIncrementedVotes);
+        });
+    });
+
+    test("responds with 404 if article doesn't exist", () => {
+      const inc_votes = { inc_votes: -666 };
+      return request(app)
+        .patch("/api/comments/99999")
+        .send(inc_votes)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("Comment not found!");
+        });
+    });
+
+    test("responds with 400 if article invalid", () => {
+      const inc_votes = { inc_votes: -666 };
+      return request(app)
+        .patch("/api/comments/banana")
+        .send(inc_votes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("Bad request!");
+        });
+    });
+
+    test("responds with 400 if inc_votes invalid", () => {
+      const inc_votes = { inc_votes: "banana" };
+      return request(app)
+        .patch("/api/comments/2")
+        .send(inc_votes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("Bad request!");
+        });
+    });
+
+    test("responds with 400 if inc_votes missing", () => {
+      return request(app)
+        .patch("/api/comments/2")
         .send()
         .expect(400)
         .then(({ body }) => {
