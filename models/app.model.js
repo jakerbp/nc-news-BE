@@ -30,9 +30,20 @@ exports.selectArticleComments = (article_id) => {
   });
 };
 
-exports.selectArticles = (topic) => {
+exports.selectArticles = (topic, sort_by, order) => {
+  const lowerOrder = order.toLowerCase();
+  const lowerSortBy = sort_by.toLowerCase();
+  const validOrder = ["asc", "desc"]
+  const validSortBy = ["article_id", "title", "topic", "author", "created_at", "votes", "comment_count"]
   let queryString = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id)::int AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id `;
   const queryValues = [];
+
+  if (lowerSortBy && !validSortBy.includes(lowerSortBy)) {
+    return Promise.reject({ status: 400, msg: "Bad request!" });
+  }
+  if (lowerOrder && !validOrder.includes(lowerOrder)) {
+    return Promise.reject({ status: 400, msg: "Bad request!" });
+  }
 
   if (topic) {
     let lowerTopic = topic.toLowerCase();

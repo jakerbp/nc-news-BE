@@ -21,8 +21,8 @@ exports.getTopics = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const { topic } = req.query;
-  const articlePromises = [selectArticles(topic)];
+  const { topic, sort_by, order } = req.query;
+  const articlePromises = [selectArticles(topic, sort_by, order)];
   if (topic) {
     let lowerTopic = topic.toLowerCase();
     articlePromises.push(checkExists("topics", "slug", lowerTopic));
