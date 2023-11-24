@@ -10,13 +10,8 @@ exports.selectTopics = () => {
 };
 
 exports.selectArticle = (article_id) => {
-  let queryString = `SELECT * FROM articles `;
-  const queryValues = [];
-
-  if (article_id) {
-    queryValues.push(article_id);
-    queryString += `WHERE article_id = $1 `;
-  }
+  let queryString = `SELECT articles.*, COUNT(comments.article_id)::int AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id;`;
+  const queryValues = [article_id];
 
   return db.query(queryString, queryValues).then(({ rows }) => {
     if (rows.length === 0) {
@@ -58,6 +53,20 @@ exports.showEndpoints = () => {
   return endpoints;
 };
 
+exports.updateArticle = (article_id, updateVotes) => {
+  if (!updateVotes) {
+    return Promise.reject({ status: 400, msg: "Bad request!" });
+  }
+  let queryString = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`
+  const queryValues = [updateVotes, article_id]
+  return db.query(queryString, queryValues).then(({rows}) => {
+    if (rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "Article not found!" });
+    }
+    return rows[0]
+  })
+}
+
 exports.insertComment = (newComment, article_id) => {
   if (!newComment.username || !newComment.body) {
     return Promise.reject({ status: 400, msg: "Bad request!" });
@@ -73,3 +82,18 @@ exports.insertComment = (newComment, article_id) => {
       return rows;
     });
 };
+
+exports.selectUsers = () => {
+  let queryString = `SELECT * FROM users `;
+  return db.query(queryString).then(({ rows }) => {
+    return rows;
+  });
+};
+
+exports.deleteCommentById = (comment_id) => {
+  return db.query(`DELETE from comments WHERE comment_id = $1 RETURNING *;`, [comment_id]).then(({rows})=>{
+    if(rows.length === 0){
+      return Promise.reject({ status: 404, msg: `Comment with id ${comment_id} does not exist!` });
+    }
+  })
+}

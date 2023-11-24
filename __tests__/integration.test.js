@@ -322,6 +322,57 @@ describe("GET", () => {
           expect(request.body.msg).toEqual("Bad request!");
         });
     });
+
+    test("comment count", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .then(({ body }) => {
+          expect(body.article).toEqual({
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 100,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: 11
+          });
+        });
+    });
+  });
+
+  describe("/api/users", () => {
+    test("responds with 200 on success", () => {
+      return request(app).get("/api/users").expect(200);
+    });
+
+    test("responds with array of objects", () => {
+      return request(app)
+        .get("/api/users")
+        .then(({ body }) => {
+          expect(Array.isArray(body.users)).toEqual(true);
+          expect(body.users).toHaveLength(4);
+          body.users.forEach((user) => {
+            expect(typeof user).toBe("object");
+          });
+        });
+    });
+
+    test("response objects have expected keys", () => {
+      return request(app)
+        .get("/api/users")
+        .then(({ body }) => {
+          body.users.forEach((user) => {
+            expect(user).toMatchObject({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            });
+          });
+        });
+    });
   });
 
 });
@@ -428,6 +479,135 @@ describe("GET", () => {
         .expect(400)
         .then((request) => {
           expect(request.body.msg).toEqual("Bad request!");
+        });
+    });
+  });
+});
+
+describe("DELETE", () => {
+  describe("/api/comments/:comment_id", () => {
+    test("responds with 204 upon success", () => {
+      return request(app).delete("/api/comments/1").expect(204);
+    });
+
+    test("responds with 404 if comment_id doesn't exist", () => {
+      return request(app)
+        .delete("/api/comments/9999")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Comment with id 9999 does not exist!");
+        });
+    });
+
+    test("responds with 400 if comment_id is invalid", () => {
+      return request(app)
+        .delete("/api/comments/banana")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad request!");
+        });
+    });
+
+    test("responds with 404 if comment_id is missing", () => {
+      return request(app)
+        .delete("/api/comments/")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Not found!");
+        });
+    });
+  });
+});
+
+describe("PATCH", () => {
+  describe("/api/articles/:article_id", () => {
+    test("responds with 200 and increments vote count as expected", () => {
+      const inc_votes = { inc_votes: 123 };
+      const articleIncrementedVotes = {
+        updatedArticle: {
+          article_id: 2,
+          title: "Sony Vaio; or, The Laptop",
+          topic: "mitch",
+          author: "icellusedkars",
+          body: "Call me Mitchell. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would buy a laptop about a little and see the codey part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to coding as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the laptop. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the the Vaio with me.",
+          created_at: "2020-10-16T05:03:00.000Z",
+          votes: 123,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        },
+      };
+      return request(app)
+        .patch("/api/articles/2")
+        .send(inc_votes)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual(articleIncrementedVotes);
+        });
+    });
+    test("responds with 200 and decrements vote count as expected", () => {
+      const inc_votes = { inc_votes: -666 };
+      const articleIncrementedVotes = {
+        updatedArticle: {
+          article_id: 2,
+          title: "Sony Vaio; or, The Laptop",
+          topic: "mitch",
+          author: "icellusedkars",
+          body: "Call me Mitchell. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would buy a laptop about a little and see the codey part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to coding as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the laptop. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the the Vaio with me.",
+          created_at: "2020-10-16T05:03:00.000Z",
+          votes: -666,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        },
+      };
+      return request(app)
+        .patch("/api/articles/2")
+        .send(inc_votes)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual(articleIncrementedVotes);
+        });
+    });
+
+    test("responds with 404 if article doesn't exist", () => {
+      const inc_votes = { inc_votes: -666 };
+      return request(app)
+        .patch("/api/articles/99999")
+        .send(inc_votes)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("Article not found!");
+        });
+    });
+
+    test("responds with 400 if article invalid", () => {
+      const inc_votes = { inc_votes: -666 };
+      return request(app)
+        .patch("/api/articles/banana")
+        .send(inc_votes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("Bad request!");
+        });
+    });
+
+    test("responds with 400 if inc_votes invalid", () => {
+      const inc_votes = { inc_votes: "banana" };
+      return request(app)
+        .patch("/api/articles/2")
+        .send(inc_votes)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("Bad request!");
+        });
+    });
+
+    test("responds with 400 if inc_votes missing", () => {
+      return request(app)
+        .patch("/api/articles/2")
+        .send()
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("Bad request!");
         });
     });
   });
