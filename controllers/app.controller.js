@@ -9,6 +9,7 @@ const {
   selectUser,
   deleteCommentById,
   updateArticle,
+  updateComment,
 } = require("../models/app.model");
 
 const { checkExists } = require("../utils");
@@ -93,19 +94,29 @@ exports.getUsers = (req, res, next) => {
 };
 
 exports.getUser = (req, res, next) => {
-    const { username } = req.params
-    selectUser(username)
-      .then((user) => {
-        res.status(200).send({ user });
-      })
-      .catch(next);
-  };
+  const { username } = req.params;
+  selectUser(username)
+    .then((user) => {
+      res.status(200).send({ user });
+    })
+    .catch(next);
+};
 
 exports.deleteComment = (req, res, next) => {
   const { comment_id } = req.params;
   deleteCommentById(comment_id)
     .then(() => {
       res.sendStatus(204);
+    })
+    .catch(next);
+};
+
+exports.patchComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  const { inc_votes } = req.body;
+  updateComment(comment_id, inc_votes)
+    .then((updatedComment) => {
+      res.status(200).send({ updatedComment });
     })
     .catch(next);
 };
