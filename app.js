@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cors = require('cors');
 
 const apiRouter = require("./routes/api-router");
 const articlesRouter = require("./routes/articles-router");
@@ -14,6 +15,7 @@ const {
   handlePsqlErrors,
 } = require("./errors");
 
+app.use(cors());
 app.use(express.json());
 app.use("/api", apiRouter);
 app.use("/api/articles", articlesRouter);
