@@ -3,9 +3,11 @@
 This is an API intending to mimic a real world backend service (such as Reddit) which should provide this information to the front end architecture. It uses the popular `PERN stack` (ie: `Postgres`, `Express`, `React`, `Node`). The `React` frontend will be added at a later stage. 
 
 ## Live API demo
-https://newssite-zy4v.onrender.com/
+https://newssite-zy4v.onrender.com/api/
 
 Available endpoints are listed within ***endpoints.json***.
+
+Please note, the server may take a minute to start if it has been dormant recently.
 
 ## Running locally
 ### 1. Clone locally
