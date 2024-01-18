@@ -13,7 +13,7 @@ Please note, the server may take a minute to start if it has been dormant recent
 ### 1. Clone locally
 1.1 Within your terminal, paste:
     
-    git clone https://github.com/jakerbp/news-site.git
+    git clone https://github.com/jakerbp/nc-news-BE.git
 
 1.2 Install dependencies:
 
