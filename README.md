@@ -1,4 +1,4 @@
-# NewsSite API
+# NC-News API
 ## What is this project?
 This is an API intending to mimic a real world backend service (such as Reddit) which should provide this information to the front end architecture. It uses the popular `PERN stack` (ie: `Postgres`, `Express`, `React`, `Node`). The `React` frontend will be added at a later stage. 
 
